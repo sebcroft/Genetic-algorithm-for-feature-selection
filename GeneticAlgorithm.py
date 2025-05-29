@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 import random
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
@@ -34,6 +35,7 @@ class GeneticAlgorithm:
 
     """
     def __init__(self, 
+                 population_size,
                  max_gen,
                  initial_ones,
                  selection_type,
@@ -41,7 +43,7 @@ class GeneticAlgorithm:
                  mutation_rate_per_pop,
                  mutation_rate_per_chromosome):
         
-        
+        self.population_size = population_size
         self.max_gen = max_gen
         self.initial_ones = initial_ones
         self.selection_type = selection_type
@@ -62,7 +64,7 @@ class GeneticAlgorithm:
 
     def initilization_of_population(self, size, n_feat, sub_feat):
             '''This function will initilize the population of chromosomes - creating some initial cond,
-            as well as define the complexity of the problem. Explicitly, it defines the number of regressions
+            as well as define the complexity of the problem. It defines the number of regressions
             performed per generation
 
             args:
@@ -83,7 +85,8 @@ class GeneticAlgorithm:
 
     # Fitness function
     #############################################################################################################
-    # Change this function
+
+    # Suggestion: it might also be good to penalise multicolinearity here for better interpretability of coefficients (however, multicolinearity wont affect predictive performance)
     
     def fitness(self, chromosome, X_train, X_test, y_train, y_test):
         
@@ -365,11 +368,11 @@ class GeneticAlgorithm:
 
         numb_features = np.shape(R_train)[1]
 
-        start_gen = self.initilization_of_population(numb_features, numb_features, self.initial_ones)
+        start_gen = self.initilization_of_population(self.population_size, numb_features, self.initial_ones)
 
         gen_i, pop_fitness = self.fitness_pop(start_gen, R_train, R_test, y_train, y_test)
 
-        for i in range(self.max_gen):
+        for i in tqdm(range(self.max_gen)):
             
             self.generation.append(i)
             self.best_fitness.append(pop_fitness[0])
